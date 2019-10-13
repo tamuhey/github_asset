@@ -49,7 +49,7 @@ def get_repo() -> str:
             url = items[1]
     assert url
     repo = re.findall(r"github.com[:/](.*?/.*)", url)[0]
-    repo = repo.rstrip(".git")
+    repo = re.sub(".git$", "", repo)
     return repo
 
 
@@ -60,7 +60,7 @@ def get_token() -> str:
     return token
 
 
-def main(file, tag, token: str = ""):
+def up(file, tag, token: str = ""):
     token = get_token()
     repo = get_repo()
     print(f"repo: {repo}")
@@ -75,5 +75,9 @@ def main(file, tag, token: str = ""):
     print(res.json())
 
 
+def main():
+    fire.Fire({"up": up})
+
+
 if __name__ == "__main__":
-    fire.Fire(main)
+    main()
