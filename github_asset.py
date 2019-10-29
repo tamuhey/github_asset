@@ -1,4 +1,5 @@
 from pathlib import Path
+import tqdm
 import os
 import re
 import subprocess
@@ -32,9 +33,19 @@ def make_upload_url(url: str, file: str):
     return url + f"?name={file}"
 
 
-def make_header(file: str, token: str):
+def make_releases_url(repo):
+    return ENDPOINT + f"/repos/{repo}/releases"
+
+
+def make_upload_header(token: str):
     header = auth_header(token)
     header["Content-Type"] = "application/octet-stream"
+    return header
+
+
+def make_download_header(token: str):
+    header = auth_header(token)
+    header["Accept"] = "application/octet-stream"
     return header
 
 
@@ -66,7 +77,7 @@ def up(file, tag, token: str = ""):
     print(f"repo: {repo}")
     url = get_upload_url(tag, repo, token)
     url = make_upload_url(url, file)
-    header = make_header(file, token)
+    header = make_upload_header(token)
     print(header)
     print(url)
     with open(file, "rb") as f:
@@ -75,8 +86,38 @@ def up(file, tag, token: str = ""):
     print(res.json())
 
 
+def get(name: str):
+    token = get_token()
+    header = auth_header(token)
+    repo = get_repo()
+    url = make_releases_url(repo)
+    r = requests.get(url, headers=header)
+    r.raise_for_status()
+    assets = []
+    for release in r.json():
+        assets.extend(release["assets"])
+    target = None
+    for asset in assets:
+        if asset["name"] == name:
+            target = asset
+            break
+    assert target, f"Asset {name} not found."
+
+    size = target["size"]
+    header = make_download_header(token)
+    r = requests.get(target["url"], headers=header, stream=True)
+
+    chunk_size = 8192
+    with tqdm.tqdm(total=size) as p:
+        with open(name, "wb") as f:
+            for c in r.iter_content(chunk_size=chunk_size):
+                if c:
+                    f.write(c)
+                    p.update(len(c))
+
+
 def main():
-    fire.Fire({"up": up})
+    fire.Fire({"up": up, "get": get})
 
 
 if __name__ == "__main__":
