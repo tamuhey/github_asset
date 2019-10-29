@@ -71,9 +71,9 @@ def get_token() -> str:
     return token
 
 
-def up(file, tag, token: str = ""):
+def up(file, tag, token: str = "", repo=None):
     token = get_token()
-    repo = get_repo()
+    repo = repo or get_repo()
     print(f"repo: {repo}")
     url = get_upload_url(tag, repo, token)
     url = make_upload_url(url, file)
@@ -86,10 +86,10 @@ def up(file, tag, token: str = ""):
     print(res.json())
 
 
-def get(name: str):
+def get(name: str, repo=None):
     token = get_token()
     header = auth_header(token)
-    repo = get_repo()
+    repo = repo or get_repo()
     url = make_releases_url(repo)
     r = requests.get(url, headers=header)
     r.raise_for_status()
