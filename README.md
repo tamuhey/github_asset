@@ -3,7 +3,7 @@
 ## Install
 
 ```bash
-$ pip install git+https://github.com/tamuhey/github_asset
+$ pip install github_asset
 ```
 
 ## Usage
@@ -12,5 +12,5 @@ $ pip install git+https://github.com/tamuhey/github_asset
 $ github-asset up file_to_upload tag_to_upload
 ```
 ```bash
-$ github-asset get file_to_download
+$ github-asset get file_to_download repo_name
 ```
