@@ -8,7 +8,8 @@ def test_get_repo():
 
 def test_get_file():
     fname = "foo.txt"
-    os.remove(fname)
+    if os.path.exists(fname):
+        os.remove(fname)
     get(fname)
     assert os.path.exists(fname)
     os.remove(fname)
