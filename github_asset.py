@@ -14,7 +14,8 @@ def auth_header(token):
     return {"Authorization": f"token {token}"}
 
 
-def get_upload_url(tag, repo, token) -> str:
+def get_upload_url(tag: str, repo, token) -> str:
+    tag = str(tag)
     res = requests.get(
         ENDPOINT + f"/repos/{repo}/releases", headers=auth_header(token)
     ).json()
